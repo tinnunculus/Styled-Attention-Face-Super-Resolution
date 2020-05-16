@@ -11,7 +11,7 @@ Jongyeon Lee, Face Super-Resolution with Styled Feature Channel Attention, The H
 * PIL
 
 ## Dataset
-* [FFHQ dataset][https://github.com/NVlabs/ffhq-dataset]
+* [FFHQ dataset](https://github.com/NVlabs/ffhq-dataset)
 
 ## Train
 ```
