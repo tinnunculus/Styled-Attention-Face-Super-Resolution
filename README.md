@@ -1,5 +1,5 @@
 # Styled-Attention-Face-Super-Resolution
-Jongyeon Lee, Face Super-Resolution with Styled Feature Channel Attention, The Hongik University Graduation Project 
+Jongyeon Lee, Face Super-Resolution with Styled Feature Channel Attention, The Hongik University Graduation Project in 2020 
 ## Overview
 ![picture_1](https://user-images.githubusercontent.com/36150943/82112414-ad2ce080-9787-11ea-8b7c-b99b84fa21ea.png)
 
