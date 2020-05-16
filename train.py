@@ -24,7 +24,7 @@ def train(args):
     save_gen_model = "save_model/gen.pth"
     save_dis_model = "save_model/dis.pth"
 
-    pre_dataset = prepare_dataset(batch_size = args.batch_size, low_image_size = args.low_image_size, high_image_size = args.low_image_size * args.scale)
+    pre_dataset = prepare_dataset(train = args.data_path,batch_size = args.batch_size, low_image_size = args.low_image_size, high_image_size = args.low_image_size * args.scale)
 
     if args.pretrain == 1:
         encoder = gaussian_resnet_encoder(image_size = args.low_image_size).to(device)
@@ -211,6 +211,8 @@ def main():
                                   help="Train or Test")
     main_arg_parser.add_argument("--gen-path", type=str,
                                  help="generates SR image")
+    main_arg_parser.add_argument("--data-path", type=str,
+                                 help="train data path")
     args = main_arg_parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
 
