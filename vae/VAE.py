@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from torch.nn import functional as F
 
 class ConvLayer(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride):

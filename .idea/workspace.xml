@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="079017eb-3713-4adc-a2a7-f8940b902eb2" name="Default Changelist" comment="" />
+    <list default="true" id="079017eb-3713-4adc-a2a7-f8940b902eb2" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/vae/VAE.py" beforeDir="false" afterPath="$PROJECT_DIR$/vae/VAE.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vgg/vgg.py" beforeDir="false" afterPath="$PROJECT_DIR$/vgg/vgg.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1byTBY7sksLiNazbJtlyDuuqxdv" />
   <component name="PropertiesComponent">
@@ -36,5 +42,16 @@
       <updated>1589603198209</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>
