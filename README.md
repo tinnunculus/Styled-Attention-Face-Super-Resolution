@@ -13,6 +13,15 @@ Jongyeon Lee, Face Super-Resolution with Styled Feature Channel Attention, The H
 ## Dataset
 * [FFHQ dataset](https://github.com/NVlabs/ffhq-dataset)
 
+## Result
+* input image size : 32 x 32
+* output image size: 256 x 256
+![image](https://user-images.githubusercontent.com/36150943/82115529-4b2ba580-979e-11ea-95ef-c20f7a542c53.png)
+![image](https://user-images.githubusercontent.com/36150943/82115446-c8a2e600-979d-11ea-8f7a-09a0a71c9d92.png)
+![image](https://user-images.githubusercontent.com/36150943/82115447-cb054000-979d-11ea-91d6-d38fd7fe12a0.png)
+![image](https://user-images.githubusercontent.com/36150943/82115455-d2c4e480-979d-11ea-94a4-067c13f28187.png)
+![image](https://user-images.githubusercontent.com/36150943/82115458-d5273e80-979d-11ea-918a-e418b882e73c.png)
+
 ## Train
 ```
 $ python train.py --data-path [training data path]
