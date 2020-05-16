@@ -40,5 +40,5 @@ Optional arguments :
 
 ## Generate
 ```
-$ python train.py --gen-path [input image path]
+$ python train.py --gen-path [input image file path]
 ```
