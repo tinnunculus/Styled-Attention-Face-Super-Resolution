@@ -89,7 +89,7 @@ def train(args):
                 style_loss += mse_loss(gm_f, gm_y[:n_batch, :, :])
 
             #loss
-            g_loss = 0.3 * GLL + 0.1 * content_loss + 0.1 * f_loss + 50 * style_loss
+            g_loss = 0.3 * GLL + 0.1 * content_loss + 0.12 * f_loss + 100 * style_loss
 
             g_loss.backward()
             f_train_loss += f_loss.item()
