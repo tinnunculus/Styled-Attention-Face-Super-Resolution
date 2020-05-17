@@ -202,7 +202,7 @@ def main():
     main_arg_parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
     main_arg_parser.add_argument("--low-image-size", type=int, default=32,
-                                  help="size of input training images, default is 32 X 32")
+                                  help="size of input training images (default: 32 X 32)")
     main_arg_parser.add_argument("--scale", type=int, default=8,
                                   help="hom much scale (default: 8)")
     main_arg_parser.add_argument("--pretrain", type=int, default=1,
