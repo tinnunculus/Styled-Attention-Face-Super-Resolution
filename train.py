@@ -162,7 +162,7 @@ def generate(args):
         encoder.eval()
         G.eval()
         z, mu, logvar = encoder(x_image)
-        output = G(x_image,z)
+        output = G(x_image,mu)
         x_image = x_image.cpu()
         output = output.cpu()
     x_image[0] *= 255

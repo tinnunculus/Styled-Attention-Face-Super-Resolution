@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="079017eb-3713-4adc-a2a7-f8940b902eb2" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vae/prepare_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/vae/prepare_dataset.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
