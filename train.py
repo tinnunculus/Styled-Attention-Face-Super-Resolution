@@ -132,8 +132,7 @@ def train(args):
                     ev_z,mu,logvar = encoder(ev_x)
                     fake_imgs = G(ev_x, mu)
                     kkk = F.upsample(fake_imgs, scale_factor=2)
-                    torchvision.utils.save_image(kkk.cpu(), "results/pred_" + str(qwertyui)  + ".jpg", nrow=int(args.batch_size ** 0.5))
-                    qwertyui += 1
+                    torchvision.utils.save_image(kkk.cpu(), "results/pred_" + str(e)  + ".jpg", nrow=int(args.batch_size ** 0.5))
                     kkk = F.upsample(ev_x,scale_factor = 16)
                     torchvision.utils.save_image(kkk.cpu(), "results/input_" + str(e) + ".jpg", nrow=int(args.batch_size ** 0.5))
                 
