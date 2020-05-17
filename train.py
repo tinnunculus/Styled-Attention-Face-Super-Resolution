@@ -205,7 +205,7 @@ def main():
                                   help="size of input training images (default: 32 X 32)")
     main_arg_parser.add_argument("--scale", type=int, default=8,
                                   help="hom much scale (default: 8)")
-    main_arg_parser.add_argument("--pretrain", type=int, default=1,
+    main_arg_parser.add_argument("--pretrain", type=int, default=0,
                                   help="applies pretrained model")
     main_arg_parser.add_argument("--train-test", type=int, default=0,
                                   help="Train or Test")
