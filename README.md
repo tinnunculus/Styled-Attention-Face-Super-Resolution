@@ -11,7 +11,7 @@ Jongyeon Lee, Face Super-Resolution with Styled Feature Channel Attention, The H
 * PIL
 
 ## Dataset
-* [FFHQ dataset](https://github.com/NVlabs/ffhq-dataset) Aligned and cropped images at 1024×1024
+* [FFHQ dataset](https://github.com/NVlabs/ffhq-dataset)(Aligned and cropped images at 1024×1024)
 
 ## Result
 * input image size : 32 x 32
