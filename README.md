@@ -37,10 +37,10 @@ Optional arguments :
   --gen-path,       input image path
   --data-path,      training data path
 ```
-The intermediate output is generated in the results folder
+The intermediate output is generated in the "results" folder
 
 ## Generate
 ```
 $ python train.py --train-test 1 --gen-path [input image file path]
 ```
-The output is generated in the samples folder
+The output is generated in the "samples" folder
