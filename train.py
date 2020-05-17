@@ -235,12 +235,12 @@ def main():
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     
     
-    if not(os.path.isdir({"save_model"})):
-        os.makedirs(os.path.join({"save_model"}))
-    if not(os.path.isdir({"results"})):
-        os.makedirs(os.path.join({"results"}))
-    if not(os.path.isdir({"samples"})):
-        os.makedirs(os.path.join({"samples"}))
+    if not(os.path.isdir("save_model")):
+        os.makedirs(os.path.join("save_model"))
+    if not(os.path.isdir("results")):
+        os.makedirs(os.path.join("results"))
+    if not(os.path.isdir("samples")):
+        os.makedirs(os.path.join("samples"))
 
     if args.train_test == 0:
         train(args)
