@@ -46,8 +46,8 @@ def train(args):
     G_parameters = list(encoder.parameters()) + list(G.parameters())
     g_optimizer = Adam(G_parameters, 0.0002)
     d_optimizer = Adam(D.parameters(), 0.0001)
-    g_scheduler = torch.optim.lr_scheduler.StepLR(g_optimizer, step_size = 5, gamma = 0.5)
-    d_scheduler = torch.optim.lr_scheduler.StepLR(d_optimizer, step_size = 5, gamma = 0.5)
+    g_scheduler = torch.optim.lr_scheduler.StepLR(g_optimizer, step_size = 3, gamma = 0.5)
+    d_scheduler = torch.optim.lr_scheduler.StepLR(d_optimizer, step_size = 3, gamma = 0.5)
 
     vgg = Vgg16(requires_grad = False).to(device)
     mse_loss = torch.nn.MSELoss()
