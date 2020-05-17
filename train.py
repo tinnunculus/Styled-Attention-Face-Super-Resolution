@@ -1,6 +1,7 @@
 import time
 from torch.optim import Adam
 import argparse
+import torch.nn.functional as F
 from torchvision import transforms
 from torchvision.utils import save_image
 from model.model import generator, discriminator
@@ -60,12 +61,17 @@ def train(args):
         d_train_loss = 0
 
         it = iter(pre_dataset.y_train_loader)
+        ev_x = torch.rand(size=(args.batch_size,3,32,32)).to(device)
+        ev_y = torch.rand(size=(args.batch_size,3,256,256)).to(device)
         for batch_id, (x,_) in enumerate(pre_dataset.x_train_loader):
             y , _ = next(it)
             n_batch = len(x)
             count += n_batch
             x = x.to(device)
             y = y.to(device)
+            if batch_id == 4:
+                ev_x = x
+                ev_y = y
 
             # train generator
             g_optimizer.zero_grad()
@@ -118,6 +124,18 @@ def train(args):
                     GLL.item(), 0.2 * content_loss.item(), fake_loss.mean().item(), real_loss.mean().item(), 10000 * style_loss.item(),time.ctime()))
 
             if batch_id % (50 * args.log_interval) == 0 and batch_id != 0:
+                #result_image
+                with torch.no_grad():
+                    kkk = F.upsample(ev_y, scale_factor=2)
+                    torchvision.utils.save_image(kkk.cpu(), "results/true_" + str(e) + ".jpg", nrow=int(args.batch_size ** 0.5))
+                    ev_z,mu,logvar = encoder(ev_x)
+                    fake_imgs = G(ev_x, mu)
+                    kkk = F.upsample(fake_imgs, scale_factor=2)
+                    torchvision.utils.save_image(kkk.cpu(), "results/pred_" + str(qwertyui)  + ".jpg", nrow=int(args.batch_size ** 0.5))
+                    qwertyui += 1
+                    kkk = F.upsample(ev_x,scale_factor = 16)
+                    torchvision.utils.save_image(kkk.cpu(), "results/input_" + str(e) + ".jpg", nrow=int(args.batch_size ** 0.5))
+                
                 # save model
                 torch.save(encoder.state_dict(), save_enc_model)
                 torch.save(G.state_dict(), save_gen_model)
