@@ -29,7 +29,6 @@ $ python train.py --data-path [training data path]
 Optional arguments :
   --batch-size,     input batch size for training (default: 4)
   --epochs,         number of epochs to train (default: 10)
-  --no-cuda,        enables CUDA training
   --log-interval,   how many batches to wait before logging training status
   --low-image-size, size of input training images (default: 32)
   --scale,          hom much scale (default: 8)
