@@ -16,11 +16,12 @@ Jongyeon Lee, Face Super-Resolution with Styled Feature Channel Attention, The H
 ## Result
 * input image size : 32 x 32
 * output image size: 256 x 256
+* |input|output|true|
 ![image](https://user-images.githubusercontent.com/36150943/82115529-4b2ba580-979e-11ea-95ef-c20f7a542c53.png)
-![image](https://user-images.githubusercontent.com/36150943/82115446-c8a2e600-979d-11ea-8f7a-09a0a71c9d92.png)
-![image](https://user-images.githubusercontent.com/36150943/82115447-cb054000-979d-11ea-91d6-d38fd7fe12a0.png)
-![image](https://user-images.githubusercontent.com/36150943/82115455-d2c4e480-979d-11ea-94a4-067c13f28187.png)
-![image](https://user-images.githubusercontent.com/36150943/82115458-d5273e80-979d-11ea-918a-e418b882e73c.png)
+![image](https://user-images.githubusercontent.com/36150943/82174958-446f7080-990d-11ea-9bdd-d1a79be4f620.png)
+![image](https://user-images.githubusercontent.com/36150943/82175217-4a198600-990e-11ea-8ba3-e901e0ae5b0d.png)
+![image](https://user-images.githubusercontent.com/36150943/82175297-8f3db800-990e-11ea-9d58-679f55f0e4a9.png)
+
 
 ## Train
 ```
