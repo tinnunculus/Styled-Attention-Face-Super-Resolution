@@ -16,7 +16,7 @@ Jongyeon Lee, Face Super-Resolution with Styled Feature Channel Attention, The H
 ## Result
 * input image size : 32 x 32
 * output image size: 256 x 256
-* |input|output|true|
+* | input | output | true |
 ![image](https://user-images.githubusercontent.com/36150943/82115529-4b2ba580-979e-11ea-95ef-c20f7a542c53.png)
 ![image](https://user-images.githubusercontent.com/36150943/82174958-446f7080-990d-11ea-9bdd-d1a79be4f620.png)
 ![image](https://user-images.githubusercontent.com/36150943/82175217-4a198600-990e-11ea-8ba3-e901e0ae5b0d.png)
