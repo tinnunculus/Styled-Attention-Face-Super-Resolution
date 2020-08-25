@@ -26,22 +26,23 @@ Jongyeon Lee, Face Super-Resolution with Styled Feature Channel Attention, The H
 
 ## Train
 ```
-$ python train.py --data-path [training data path]
+$ python train.py --train-data-path [train data path]
 
 Optional arguments :
-  --batch-size,     input batch size for training (default: 4)
-  --epochs,         number of epochs to train (default: 10)
-  --log-interval,   how many batches to wait before logging training status
-  --low-image-size, size of input training images (default: 32)
-  --scale,          hom much scale (default: 8)
-  --train-test,     0 means train phase, and the otherwise test (default: 0)
-  --gen-path,       input image path
-  --data-path,      training data path
+  --batch-size,             input batch size for training (default: 4)
+  --epochs,                 number of epochs to train (default: 10)
+  --log-interval,           how many batches to wait before logging training status (default: 10)
+  --low-image-size,         size of input training images (default: 32)
+  --scale,                  scale size (default: 8)
+  --train-test,             0 means train phase, and the otherwise test (default: 0)
+  --pretrain,               1 means using pretrained model (default: 0)
+  --train-data-path,        train data path
+  --test-data-path,         test data path
 ```
 The intermediate output is generated in the "results" folder
 
 ## Generate
 ```
-$ python train.py --train-test 1 --gen-path [input image file path]
+$ python train.py --train-test 1 --test-data-path [test data path]
 ```
 The output is generated in the "samples" folder
