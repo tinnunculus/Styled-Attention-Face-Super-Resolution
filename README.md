@@ -41,7 +41,7 @@ Optional arguments :
 ```
 The intermediate output is generated in the "results" folder
 
-## Generate
+## test
 ```
 $ python train.py --train-test 1 --test-data-path [test data path]
 ```
