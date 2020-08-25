@@ -4,6 +4,19 @@ import torch.nn.functional as F
 from math import sqrt
 from torch.autograd import Function
 
+class UpsampleBLock(nn.Module):
+    def __init__(self, in_channels,out_channels, up_scale = 2):
+        super(UpsampleBLock, self).__init__()
+        self.conv = nn.Conv2d(in_channels, out_channels * up_scale ** 2, kernel_size=3, padding=1)
+        self.pixel_shuffle = nn.PixelShuffle(up_scale)
+        self.prelu = nn.PReLU()
+
+    def forward(self, x):
+        x = self.conv(x)
+        x = self.pixel_shuffle(x)
+        x = self.prelu(x)
+        return x
+
 class ConvLayer(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1):
         super(ConvLayer, self).__init__()
@@ -158,10 +171,8 @@ class CALayer(nn.Module):
         return x * y
 
 class BasicBlock(nn.Module):
-    def __init__(self, in_channel, out_channel, image_size, kernel_size=3, padding=1, style_dim = 256):
+    def __init__(self, in_channel, out_channel, kernel_size=3, padding=1):
         super().__init__()
-
-        self.size =image_size
 
         self.conv1 = nn.Sequential(
             FusedUpsample(in_channel, out_channel, kernel_size, padding=padding),
@@ -169,62 +180,56 @@ class BasicBlock(nn.Module):
         )
         self.noise1 = equal_lr(NoiseInjection(out_channel))
         self.lrelu = nn.LeakyReLU(0.2)
+        self.ca_layer_1 = CALayer(out_channel)
 
         self.conv2 = ConvLayer(out_channel, out_channel, kernel_size)
         self.noise2 = equal_lr(NoiseInjection(out_channel))
+        self.ca_layer_2 = CALayer(out_channel)
 
         self.conv3 = ConvLayer(out_channel, out_channel, kernel_size)
         self.noise3 = equal_lr(NoiseInjection(out_channel))
+        self.ca_layer_3 = CALayer(out_channel)
 
         self.conv4 = ConvLayer(out_channel, out_channel, kernel_size)
         self.noise4 = equal_lr(NoiseInjection(out_channel))
+        self.ca_layer_4 = CALayer(out_channel)
 
         self.conv5 = ConvLayer(out_channel, out_channel, kernel_size)
         self.noise5 = equal_lr(NoiseInjection(out_channel))
+        self.ca_layer_5 = CALayer(out_channel)
 
-        self.to_style_1 = nn.Linear(style_dim, style_dim)
-        self.to_style_2 = nn.Linear(style_dim, style_dim)
-        self.to_style_3 = nn.Linear(style_dim, style_dim)
-        self.to_style_4 = nn.Linear(style_dim, style_dim)
-        self.to_style_5 = nn.Linear(style_dim, out_channel)
-        self.ca_layer = CALayer(out_channel)
-
-    def forward(self, input, style):
+    def forward(self, input):
         batch = input.size(0)
-        noise_1 = torch.randn(batch, 1, self.size, self.size, device=input[0].device)
-        noise_2 = torch.randn(batch, 1, self.size, self.size, device=input[0].device)
-        noise_3 = torch.randn(batch, 1, self.size, self.size, device=input[0].device)
-        noise_4 = torch.randn(batch, 1, self.size, self.size, device=input[0].device)
-        noise_5 = torch.randn(batch, 1, self.size, self.size, device=input[0].device)
+        noise_1 = torch.randn(batch, 1, input.size(2) * 2, input.size(3)*2, device=input[0].device)
+        noise_2 = torch.randn(batch, 1, input.size(2) * 2, input.size(3)*2, device=input[0].device)
+        noise_3 = torch.randn(batch, 1, input.size(2) * 2, input.size(3)*2, device=input[0].device)
+        noise_4 = torch.randn(batch, 1, input.size(2) * 2, input.size(3)*2, device=input[0].device)
+        noise_5 = torch.randn(batch, 1, input.size(2) * 2, input.size(3)*2, device=input[0].device)
 
         out_1 = self.conv1(input)
         out = self.noise1(out_1, noise_1)
-        to_style = self.to_style_1(style)
-        to_style = self.to_style_2(to_style)
-        to_style = self.to_style_3(to_style)
-        to_style = self.to_style_4(to_style)
-        to_style = self.to_style_5(to_style)
-        to_style = to_style.unsqueeze(2)
-        to_style = to_style.unsqueeze(3)
-        out = out * to_style
         out = self.lrelu(out)
-        out = self.ca_layer(out)
+        out = self.ca_layer_1(out)
 
         out = self.conv2(out)
         out = self.noise2(out, noise_2)
         out = self.lrelu(out)
+        out = self.ca_layer_3(out)
 
         out = self.conv3(out)
         out = self.noise3(out, noise_3)
         out = self.lrelu(out)
+        out = self.ca_layer_3(out)
 
         out = self.conv4(out)
         out = self.noise4(out,noise_4)
         out = self.lrelu(out)
+        out = self.ca_layer_4(out)
 
         out = self.conv5(out)
-        out = self.noise5(out,noise_5)
+        out = self.noise5(out, noise_5)
         out = self.lrelu(out)
+        out = self.ca_layer_5(out)
 
         return out + out_1
 
@@ -236,48 +241,51 @@ class generator(nn.Module):
         self.scale = scale
 
         self.initial = ConvLayer(in_channels=3, out_channels=512, kernel_size=3, stride=1)
-        self.upsample_1 = BasicBlock(512, 512, image_size=8)
+        self.upsample_1 = BasicBlock(512, 512)
 
         self.origin_2 = ConvLayer(in_channels=3, out_channels=512, kernel_size=3, stride=1)
-        self.upsample_2 = BasicBlock(512, 256, image_size=16)
+        self.upsample_2 = BasicBlock(512, 512)
 
-        self.origin_3 = ConvLayer(in_channels=3, out_channels=256, kernel_size=3, stride=1)
-        self.upsample_3 = BasicBlock(256, 256, image_size=32)
+        self.origin_3 = ConvLayer(in_channels=3, out_channels=512, kernel_size=3, stride=1)
+        self.upsample_3 = BasicBlock(512, 256)
 
         self.origin_4 = ConvLayer(in_channels=3, out_channels=256, kernel_size=3, stride=1)
-        self.upsample_4 = BasicBlock(256, 128, image_size=64)
-        self.upsample_5 = BasicBlock(128, 64, image_size=128)
-        self.upsample_6 = BasicBlock(64, 32, image_size=256)
-        self.finish = ConvLayer(in_channels=32, out_channels=3, kernel_size=3, stride=1)
+        self.upsample_4 = BasicBlock(256, 256)
+        self.upsample_5 = BasicBlock(256, 128)
 
-    def forward(self, input, style):
+        self.upsample_6 = UpsampleBLock(128, 64, 2)
+        self.finish = ConvLayer(in_channels=64, out_channels=3, kernel_size=3, stride=1)
+
+    def forward(self, input):
+        # apply linear style
+
         # 4 x 4
         out = F.upsample(input, scale_factor=1/8, mode='bilinear')
         out = self.initial(out)
-        out = self.upsample_1(out, style)
+        out = self.upsample_1(out)
 
         # 8 x 8
         image = F.upsample(input, scale_factor=1/4, mode='bilinear')
         image = self.origin_2(image)
         out = out + image
-        out = self.upsample_2(out, style)
+        out = self.upsample_2(out)
 
         # 16 x 16
         image = F.upsample(input, scale_factor=1/2, mode='bilinear')
         image = self.origin_3(image)
         out = out + image
-        out = self.upsample_3(out, style)
+        out = self.upsample_3(out)
 
         # 32 x 32
         image = self.origin_4(input)
         out = out + image
-        out = self.upsample_4(out, style)
+        out = self.upsample_4(out)
 
         # 64 x 64
-        out = self.upsample_5(out, style)
+        out = self.upsample_5(out)
 
         # 128 x 128
-        out = self.upsample_6(out, style)
+        out = self.upsample_6(out)
 
         # 256 x 256
         out = self.finish(out)

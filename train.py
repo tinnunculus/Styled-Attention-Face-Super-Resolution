@@ -1,15 +1,13 @@
 import os
 import time
+import torch
 from torch.optim import Adam
 import argparse
 import torch.nn.functional as F
 import torchvision
-from torchvision import transforms
-from torchvision.utils import save_image
 from model.model import generator, discriminator
 from vgg.vgg import Vgg16
-from vae.VAE import *
-from vae.prepare_dataset import prepare_dataset
+from pre_model.prepare_dataset import prepare_dataset
 from PIL import Image
 
 def gram_matrix(y):
@@ -22,38 +20,32 @@ def gram_matrix(y):
 def train(args):
     device = torch.device("cuda" if args.cuda else "cpu")
     torch.manual_seed(args.seed)
-    save_enc_model = "save_model/enc.pth"
     save_gen_model = "save_model/gen.pth"
     save_dis_model = "save_model/dis.pth"
 
-    pre_dataset = prepare_dataset(train = args.data_path,batch_size = args.batch_size, low_image_size = args.low_image_size, high_image_size = args.low_image_size * args.scale)
+    pre_dataset = prepare_dataset(train = args.train_data_path,batch_size = args.batch_size, low_image_size = args.low_image_size, high_image_size = args.low_image_size * args.scale)
 
     if args.pretrain == 1:
-        encoder = gaussian_resnet_encoder(image_size = args.low_image_size).to(device)
         G = generator().to(device)
         D = discriminator().to(device)
-        state_enc_dict = torch.load(save_enc_model)
         state_gen_dict = torch.load(save_gen_model)
         state_dis_dict = torch.load(save_dis_model)
-        encoder.load_state_dict(state_enc_dict)
         G.load_state_dict(state_gen_dict)
         D.load_state_dict(state_dis_dict)
     else :
-        encoder = gaussian_resnet_encoder(image_size = args.low_image_size).to(device)
         G = generator().to(device)
         D = discriminator().to(device)
 
-    G_parameters = list(encoder.parameters()) + list(G.parameters())
-    g_optimizer = Adam(G_parameters, 0.0002)
+    g_optimizer = Adam(G.parameters(), 0.0002)
     d_optimizer = Adam(D.parameters(), 0.0001)
     g_scheduler = torch.optim.lr_scheduler.StepLR(g_optimizer, step_size = 3, gamma = 0.5)
     d_scheduler = torch.optim.lr_scheduler.StepLR(d_optimizer, step_size = 3, gamma = 0.5)
 
     vgg = Vgg16(requires_grad = False).to(device)
     mse_loss = torch.nn.MSELoss()
+    str_num = 0
 
     for e in range(args.epochs):
-        encoder.train()
         G.train()
         D.train()
         count = 0
@@ -76,8 +68,7 @@ def train(args):
 
             # train generator
             g_optimizer.zero_grad()
-            z, mu, logvar = encoder(x)
-            fake_image = G(x, z)
+            fake_image = G(x)
             fake_loss = D(fake_image)
             f_loss = (1 - (fake_loss).mean()) ** 2
             GLL = torch.mean(torch.abs(y - fake_image)) # L1 loss
@@ -96,7 +87,7 @@ def train(args):
                 style_loss += mse_loss(gm_f, gm_y[:n_batch, :, :])
 
             #loss
-            g_loss = 0.3 * GLL + 0.1 * content_loss + 0.12 * f_loss + 100 * style_loss
+            g_loss = 0.3 * GLL + 0.1 * content_loss + 0.1 * f_loss + 100 * style_loss
 
             g_loss.backward()
             f_train_loss += f_loss.item()
@@ -105,10 +96,9 @@ def train(args):
 
             # train discriminator
             real_loss = D(y)
-            if batch_id % 5  == 0 :
+            if batch_id % 8  == 0 :
                 d_optimizer.zero_grad()
-                z, mu, logvar = encoder(x)
-                fake_image = G(x, z)
+                fake_image = G(x)
                 fake_loss = D(fake_image)
                 real_loss = D(y)
                 divergence = (1 - (real_loss).mean()) ** 2 + ((fake_loss).mean()) ** 2
@@ -124,20 +114,23 @@ def train(args):
                     100. * batch_id / len(pre_dataset.x_train_loader),
                     GLL.item(), 0.2 * content_loss.item(), fake_loss.mean().item(), real_loss.mean().item(), 10000 * style_loss.item(),time.ctime()))
 
-            if batch_id % (50 * args.log_interval) == 0 and batch_id != 0:
                 #result_image
                 with torch.no_grad():
-                    kkk = F.upsample(ev_y, scale_factor=2)
-                    torchvision.utils.save_image(kkk.cpu(), "results/true_" + str(e) + ".jpg", nrow=int(args.batch_size ** 0.5))
-                    ev_z,mu,logvar = encoder(ev_x)
-                    fake_imgs = G(ev_x, mu)
+                    fake_imgs = G(ev_x)
                     kkk = F.upsample(fake_imgs, scale_factor=2)
-                    torchvision.utils.save_image(kkk.cpu(), "results/pred_" + str(e)  + ".jpg", nrow=int(args.batch_size ** 0.5))
-                    kkk = F.upsample(ev_x,scale_factor = 16)
-                    torchvision.utils.save_image(kkk.cpu(), "results/input_" + str(e) + ".jpg", nrow=int(args.batch_size ** 0.5))
+                    if int(str_num / 10) == 0:
+                        torchvision.utils.save_image(kkk.cpu(), 'results/0000' + str(str_num)  + ".jpg", nrow=int(args.batch_size ** 0.5))
+                    elif int(str_num / 100) == 0:
+                        torchvision.utils.save_image(kkk.cpu(), 'results/000' + str(str_num)  + ".jpg", nrow=int(args.batch_size ** 0.5))
+                    elif int(str_num / 1000) == 0:
+                        torchvision.utils.save_image(kkk.cpu(), 'results/00' + str(str_num)  + ".jpg", nrow=int(args.batch_size ** 0.5))
+                    elif int(str_num / 10000) == 0:
+                        torchvision.utils.save_image(kkk.cpu(), 'results/0' + str(str_num)  + ".jpg", nrow=int(args.batch_size ** 0.5))
+                    else:
+                        torchvision.utils.save_image(kkk.cpu(), 'results/' + str(str_num)  + ".jpg", nrow=int(args.batch_size ** 0.5))
+                    str_num += 1
                 
                 # save model
-                torch.save(encoder.state_dict(), save_enc_model)
                 torch.save(G.state_dict(), save_gen_model)
                 torch.save(D.state_dict(), save_dis_model)
 
@@ -150,47 +143,40 @@ def train(args):
 def generate(args):
     device = torch.device("cuda" if args.cuda else "cpu")
     torch.manual_seed(args.seed)
+    save_gen_model = "save_model/gen.pth"
+    G = generator().to(device)
+    state_gen_dict = torch.load(save_gen_model)
+    G.load_state_dict(state_gen_dict)
 
-    x_image = load_image(args.gen_path)
-    y_image = load_image(args.gen_path)
-    x_transform = transforms.Compose([
-        transforms.Resize(args.low_image_size),
-        transforms.CenterCrop(args.low_image_size),
-        transforms.ToTensor()
-    ])
-    y_transform = transforms.Compose([
-        transforms.Resize(args.low_image_size * args.scale),
-        transforms.CenterCrop(args.low_image_size* args.scale),
-        transforms.ToTensor()
-    ])
-    x_image = x_transform(x_image)
-    y_image = y_transform(y_image)
-    x_image = x_image.unsqueeze(0).to(device)
-    y_image = y_image.unsqueeze(0)
+    pre_dataset = prepare_dataset(train = args.test_data_path,batch_size = 1, low_image_size = args.low_image_size, high_image_size = args.low_image_size * args.scale)
+    it = iter(pre_dataset.y_train_loader)
+    str_num = 0
+    kkk = torch.zeros(3,3,512,512)
+    for batch_id, (x,_) in enumerate(pre_dataset.x_train_loader):
+        y , _ = next(it)
+        x = x.to(device)
+        with torch.no_grad():
+            G.eval()
+            output = G(x)
+            input_image = x.cpu()
+            output = output.cpu()
 
-    with torch.no_grad():
-        save_enc_model = "save_model/enc.pth"
-        save_gen_model = "save_model/gen.pth"
-        encoder = gaussian_resnet_encoder(image_size = args.low_image_size).to(device)
-        G = generator().to(device)
-        state_enc_dict = torch.load(save_enc_model)
-        state_gen_dict = torch.load(save_gen_model)
-        encoder.load_state_dict(state_enc_dict)
-        G.load_state_dict(state_gen_dict)
-        encoder.eval()
-        G.eval()
-        z, mu, logvar = encoder(x_image)
-        output = G(x_image,mu)
-        x_image = x_image.cpu()
-        output = output.cpu()
-    x_image[0] *= 255
-    output[0] *= 255
-    y_image[0] *= 255
+        input_img = F.upsample(input_image,scale_factor = 16)
+        output = F.upsample(output,scale_factor = 2)
+        y = F.upsample(y,scale_factor = 2)
+        kkk[0] = input_img
+        kkk[1] = output
+        kkk[2] = y
+        if int(str_num / 10) == 0:
+            torchvision.utils.save_image(kkk.cpu(), 'samples/000' + str(str_num)  + ".jpg", nrow=3)
+        elif int(str_num / 100) == 0:
+            torchvision.utils.save_image(kkk.cpu(), 'samples/00' + str(str_num)  + ".jpg", nrow=3)
+        elif int(str_num / 1000) == 0:
+            torchvision.utils.save_image(kkk.cpu(), 'samples/0' + str(str_num)  + ".jpg", nrow=3)
+        else:
+            torchvision.utils.save_image(kkk.cpu(), 'samples/' + str(str_num)  + ".jpg", nrow=3)
+        str_num += 1
 
-    input_img = F.upsample(x_image,scale_factor = 8)
-    save_image("samples/input.png", input_img[0])
-    save_image("samples/output.png",output[0])
-    save_image("samples/true.png",y_image[0])
 
 def load_image(filename, size = None, scale = None):
     img = Image.open(filename)
@@ -209,28 +195,17 @@ def save_image(filename, data):
 
 def main():
     main_arg_parser = argparse.ArgumentParser(description='VAE Pretrain')
-    main_arg_parser.add_argument('--batch-size', type=int, default = 4, metavar='N',
-                        help='input batch size for training (default: 32)')
-    main_arg_parser.add_argument('--epochs', type=int, default=10, metavar='N',
-                        help='number of epochs to train (default: 10)')
-    main_arg_parser.add_argument('--no-cuda', action='store_true', default=False,
-                        help='enables CUDA training')
-    main_arg_parser.add_argument('--seed', type=int, default=1, metavar='S',
-                        help='random seed (default: 1)')
-    main_arg_parser.add_argument('--log-interval', type=int, default=10, metavar='N',
-                        help='how many batches to wait before logging training status')
-    main_arg_parser.add_argument("--low-image-size", type=int, default=32,
-                                  help="size of input training images (default: 32 X 32)")
-    main_arg_parser.add_argument("--scale", type=int, default=8,
-                                  help="hom much scale (default: 8)")
-    main_arg_parser.add_argument("--pretrain", type=int, default=0,
-                                  help="applies pretrained model")
-    main_arg_parser.add_argument("--train-test", type=int, default=0,
-                                  help="Train or Test")
-    main_arg_parser.add_argument("--gen-path", type=str,
-                                 help="generates SR image")
-    main_arg_parser.add_argument("--data-path", type=str,
-                                 help="train data path")
+    main_arg_parser.add_argument('--batch-size', type=int, default = 4, metavar='N', help='input batch size for training (default: 32)')
+    main_arg_parser.add_argument('--epochs', type=int, default=10, metavar='N', help='number of epochs to train (default: 10)')
+    main_arg_parser.add_argument('--no-cuda', action='store_true', default=False, help='enables CUDA training')
+    main_arg_parser.add_argument('--seed', type=int, default=1, metavar='S', help='random seed (default: 1)')
+    main_arg_parser.add_argument('--log-interval', type=int, default=10, metavar='N', help='how many batches to wait before logging training status')
+    main_arg_parser.add_argument("--low-image-size", type=int, default=32, help="size of input training images (default: 32 X 32)")
+    main_arg_parser.add_argument("--scale", type=int, default=8, help="scale size (default: 8)")
+    main_arg_parser.add_argument("--pretrain", type=int, default=0, help="apply pretrained model")
+    main_arg_parser.add_argument("--train-test", type=int, default=0, help = "0 means train phase, and the otherwise test")
+    main_arg_parser.add_argument("--train-data-path", type=str, help="train data path")
+    main_arg_parser.add_argument("--test-data-path", type=str, help="test data path")
     args = main_arg_parser.parse_args()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     
