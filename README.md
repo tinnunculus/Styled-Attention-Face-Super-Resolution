@@ -46,3 +46,6 @@ The intermediate output is generated in the "results" folder
 $ python train.py --train-test 1 --test-data-path [test data path]
 ```
 The output is generated in the "samples" folder
+
+
+## reference
