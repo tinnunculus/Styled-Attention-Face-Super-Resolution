@@ -22,8 +22,6 @@ Jongyeon Lee, Face Super-Resolution with Styled Feature Channel Attention, Hongi
 ![image](https://user-images.githubusercontent.com/36150943/83629445-0fce0b00-a5d5-11ea-8877-05055480c042.png)
 
 
-
-
 ## Train
 ```
 $ python train.py --train-data-path [train data path]
