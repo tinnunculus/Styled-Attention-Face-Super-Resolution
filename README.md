@@ -48,6 +48,6 @@ $ python train.py --train-test 1 --test-data-path [test data path]
 The output is generated in the "samples" folder
 
 ## Reference
-1. T. Karras, S. Laine, T. Aila. A Style-Based Generator Architecture for Generative Adversarial Networks, arXiv:1812.04948, 2018
+1. T. Karras et al. A Style-Based Generator Architecture for Generative Adversarial Networks, arXiv:1812.04948, 2018
 2. https://github.com/rosinality/style-based-gan-pytorch
 3. https://github.com/yulunzhang/RCAN
